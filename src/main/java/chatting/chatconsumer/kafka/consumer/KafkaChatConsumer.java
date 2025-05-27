@@ -1,5 +1,6 @@
 package chatting.chatconsumer.kafka.consumer;
 
+import chatting.chatconsumer.kafka.producer.KafkaSendMsgProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,6 +18,7 @@ import java.time.Instant;
 public class KafkaChatConsumer {
 
     private final ChatMessageMongoService chatMessageMongoService;
+    private final KafkaSendMsgProducer kafkaSendMsgProducer;
 
     @KafkaListener(topics = "chat-message", groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory")
@@ -46,6 +48,9 @@ public class KafkaChatConsumer {
 //                        )
 //                        .build()
 //        );
+
+        // 2. 저장 완료 후 다시 Kafka로 전송
+        kafkaSendMsgProducer.send(message);
     }
 }
 
